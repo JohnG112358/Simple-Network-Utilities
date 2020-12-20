@@ -1,18 +1,26 @@
-# This program is designed to port scan an entire network.  It was specifically designed for the output from the
-# arp -a command to be copy/pasted into the input file, although it should be able to sort through most text and discern the ipv4
-# addresses to be scanned.  Any ipv4 address entered in the input file will be scanned from ports 1-2000 and the open ports will be printed.
+# keyboard error catching currently not functional
 import socket
 import threading
 from queue import Queue
 import re
-
+import os
+import sys
 
 q = Queue()
+cmd = "arp -a > input.txt"  # command that generates ips to be scanned
 
-# process_info is the function that takes the arp -a output and processes it so it can be used by the scanner function.
-# it takes one input variable, filename (a sting), specified in the scanner function definition as 'input.txt', although this can
-# be changed.  It outputs a list of all device ipv4 addresses in the input file, which it passes to scanner to be scanned.
+
 def process_info(filename):
+    """
+    Takes arp -a output and creates a list of ips from the output to be used by scanner function
+
+    Args:
+        filename: a string specifying the file to be process, defined in scanner
+    Returns:
+        a list of all ips within the arp -a output
+    Raises:
+        none
+    """
     a = []
     str1 = ""
 
@@ -23,38 +31,81 @@ def process_info(filename):
     for element in a:
         str1 += element
 
-    ips = re.findall(r'([1-9]+\.[1-9]+\.[1-9]+\.[1-9]+)', str1)
+    ips = re.findall(r'([1-9]+\.[1-9]+\.[1-9]+\.[1-9]+)', str1)  # finds ipv4 addresses in input file
     return ips
 
-# scanner is the function that does the actual port scanning.  It takes one input variable, port (an integer), which it gets from the queue
-# (specified in the threader function).  If a port is open it will output the port and the device ip, if not it will do nothing.
-def scanner(port, filename='input.txt'):
-    addresses = process_info(filename)
-    lock = threading.Lock()
-    for address in addresses:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = s.connect_ex((address, port))
-        s.close()
-        with lock:
-            if result == 0:
-                print("Port ", port, " is open on", address)
-            else:
-                pass
 
-# threader is the function that allows the threads to function. Each thread retrieves and removes a number from the queue
-# and passes it to scanner.  There are no input variables
+def scanner(port, filename='input.txt'):
+    """
+    Competes the port scan by performing a full tcp connect on a given port
+
+    Args:
+        port: an integer specifying the port to connect on
+        filename: a string defining the file containing the ips to be scanned, predefined as input.txt
+
+    Returns:
+        prints any open ports and the device ips to the console
+
+    Raises:
+        none
+    """
+    try:
+        addresses = process_info(filename)
+        lock = threading.Lock()
+        for address in addresses:  # iterates over addresses in list addresses, attempts to connect on port number from queue
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = s.connect_ex((address, port))
+            s.close()
+            with lock:  # prints results, lock prevents multiple threads printing at same time
+                if result == 0:
+                    print("Port ", port, " is open on", address)
+                else:
+                    pass
+    except KeyboardInterrupt:
+        print("Program Concluded")
+        sys.exit()
+
+
 def threader():
+    """
+    target function for threads, threads retrieve number from queue to act as port number and run scanner
+
+    Args:
+    none
+
+    Returns:
+        none
+    Raises:
+        none
+    """
     while True:
         number = q.get()
         scanner(number)
         q.task_done()
 
-# puts numbers in a specified range into a queue to be used as port numbers by the threads; this range will determine what
-# ports are scanned
-for port in range(1, 2000):
-    q.put(port)
 
-# initializes 10 threads (could be more/less) and tells them to run threader
-for thread in range(10):
-    t = threading.Thread(target=threader)
-    t.start()
+def main():
+    """
+    main function, runs command to generate device ips, initializes queue with port numbers, initializes threads
+
+    Args:
+    none
+
+    Returns:
+        none
+
+    Raises:
+        none
+    """
+    os.system(cmd)
+
+    for port in range(1, 2000):  # initializes que, numbers serve as port numbers
+        q.put(port)
+
+    for thread in range(10):  # initializes 10 threads (could be more/less) and tells them to run threader
+        t = threading.Thread(target=threader)
+        t.start()
+
+
+if __name__ == "__main__":
+    main()
