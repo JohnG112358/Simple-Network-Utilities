@@ -11,7 +11,7 @@ def ssh_connect(password, target, username, password_list):
         password: a string of a guessed password, taken from entered wordlist
         target: a string of target host to attack, specified in main
         username: a string of the user to attack on the target host, specified in main
-        password_list: a string of the path to the wordlist to be used in thescript, specified in main
+        password_list: a string of the path to the wordlist to be used in the script, specified in main
 
     Returns:
         Prints all attempted passwords to the console and statesif they were successful or not
