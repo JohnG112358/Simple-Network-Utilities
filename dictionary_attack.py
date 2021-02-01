@@ -17,7 +17,7 @@ def ssh_connect(password, target, username, password_list):
         Prints all attempted passwords to the console and statesif they were successful or not
 
     Raises:
-         None
+        None
     '''
     ssh = paramiko.client.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # prevents the host key policy warning from printing
