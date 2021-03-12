@@ -19,7 +19,7 @@ def main(start, stop, first_octets):
       Scapy_Exception No /dev/bpf handle is available if not run with sudo privileges
       Scapy and Pycharm don't work together very well - make sure to pip install in an outside terminal
       (not the one built into Pycharm) in the project directory.  Additionally, Pycharm won't recognize Scapy if you import
-      all of Scapy's modules, so you have to import each module or function you need individually.
+      all of Scapy's modules, so you have to import each module or function you need individually
     """
     for ip in range(start, stop):
         packet = IP(dst=first_octets + "." + str(ip), ttl=2) / ICMP()  # creates the packet that will be sent to each IP address
