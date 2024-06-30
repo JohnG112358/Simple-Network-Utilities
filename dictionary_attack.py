@@ -1,3 +1,16 @@
+'''
+Disclaimer: This script is provided for educational purposes and ethical hacking practices only.
+The author does not condone or support any illegal activities and is not responsible for any misuse
+of this code. Users are solely responsible for ensuring that their use of this tool complies with all
+applicable laws and regulations.
+
+Before using this tool, always obtain proper authorization from the network owner or administrator.
+Unauthorized use of this tool on networks or systems you do not own or have explicit permission to test
+is illegal and punishable by law.
+
+Use this tool responsibly and ethically.
+'''
+
 import paramiko  # requires paramiko - http://www.paramiko.org
 import sys
 import os
